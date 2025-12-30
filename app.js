@@ -44,8 +44,6 @@ const athletesData = {
     }
 };
 
-let chart = null;
-
 // Inicializar a aplicação quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
     const athleteSelect = document.getElementById('athlete-select');
@@ -68,94 +66,130 @@ function updateDashboard(athleteId) {
 
 // Atualizar o gráfico radar
 function updateChart(athlete) {
-    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const canvas = document.getElementById('performanceChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Configurar tamanho do canvas
+    canvas.width = 500;
+    canvas.height = 500;
     
     const labels = Object.keys(athlete.criteria);
     const data = Object.values(athlete.criteria);
-
-    // Destruir o gráfico anterior se existir
-    if (chart) {
-        chart.destroy();
+    
+    // Parâmetros do gráfico
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 80;
+    const numPoints = labels.length;
+    
+    // Limpar canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Desenhar círculos concêntricos (grades)
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 5; i++) {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, (radius / 5) * i, 0, 2 * Math.PI);
+        ctx.stroke();
     }
-
-    chart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: athlete.name,
-                data: data,
-                fill: true,
-                backgroundColor: 'rgba(79, 172, 254, 0.2)',
-                borderColor: 'rgb(79, 172, 254)',
-                pointBackgroundColor: 'rgb(79, 172, 254)',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgb(79, 172, 254)',
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                borderWidth: 3
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                r: {
-                    angleLines: {
-                        display: true,
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    },
-                    suggestedMin: 0,
-                    suggestedMax: 100,
-                    ticks: {
-                        stepSize: 20,
-                        font: {
-                            size: 12
-                        }
-                    },
-                    pointLabels: {
-                        font: {
-                            size: 13,
-                            weight: 'bold'
-                        },
-                        color: '#333'
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        },
-                        padding: 20
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: {
-                        size: 14
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.r + '/100';
-                        }
-                    }
-                }
-            }
+    
+    // Desenhar linhas radiais
+    ctx.strokeStyle = '#e0e0e0';
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
+    
+    // Desenhar o polígono de dados
+    ctx.fillStyle = 'rgba(79, 172, 254, 0.3)';
+    ctx.strokeStyle = 'rgba(79, 172, 254, 1)';
+    ctx.lineWidth = 2;
+    
+    ctx.beginPath();
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+        const value = data[i];
+        const distance = (value / 100) * radius;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
         }
-    });
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    // Desenhar pontos
+    ctx.fillStyle = 'rgba(79, 172, 254, 1)';
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+        const value = data[i];
+        const distance = (value / 100) * radius;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+    
+    // Desenhar labels
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+        const labelDistance = radius + 35;
+        const x = centerX + Math.cos(angle) * labelDistance;
+        const y = centerY + Math.sin(angle) * labelDistance;
+        
+        // Ajustar alinhamento baseado na posição
+        if (x < centerX - 5) {
+            ctx.textAlign = 'right';
+        } else if (x > centerX + 5) {
+            ctx.textAlign = 'left';
+        } else {
+            ctx.textAlign = 'center';
+        }
+        
+        // Dividir labels longos em múltiplas linhas
+        const words = labels[i].split(' ');
+        if (words.length > 1) {
+            ctx.fillText(words[0], x, y - 7);
+            ctx.fillText(words[1], x, y + 7);
+        } else {
+            ctx.fillText(labels[i], x, y);
+        }
+        
+        // Mostrar valor
+        ctx.font = 'bold 10px Arial';
+        ctx.fillStyle = '#4facfe';
+        const valueDistance = (data[i] / 100) * radius;
+        const valueX = centerX + Math.cos(angle) * valueDistance;
+        const valueY = centerY + Math.sin(angle) * valueDistance;
+        ctx.fillText(data[i], valueX, valueY - 10);
+        ctx.font = 'bold 12px Arial';
+        ctx.fillStyle = '#333';
+    }
+    
+    // Título do gráfico
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#333';
+    ctx.fillText(athlete.name, centerX, 20);
 }
 
 // Atualizar os detalhes dos critérios
