@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Desempenho - Kite Surf</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏄‍♂️ Análise de Desempenho - Kite Surf</h1>
+            <p class="subtitle">Sistema de avaliação de atletas</p>
+        </header>
+
+        <main>
+            <section class="athlete-selector">
+                <label for="athlete-select">Selecione o Atleta:</label>
+                <select id="athlete-select">
+                    <option value="athlete1">João Silva</option>
+                    <option value="athlete2">Maria Santos</option>
+                    <option value="athlete3">Pedro Costa</option>
+                </select>
+            </section>
+
+            <section class="chart-container">
+                <h2>Gráfico de Critérios de Desempenho</h2>
+                <div class="chart-wrapper">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </section>
+
+            <section class="criteria-details">
+                <h2>Detalhes dos Critérios</h2>
+                <div class="criteria-grid" id="criteriaGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <section class="summary">
+                <h2>Resumo Geral</h2>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Média Geral</h3>
+                        <p class="summary-value" id="averageScore">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Pontos Fortes</h3>
+                        <p class="summary-value" id="strengths">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Pontos a Melhorar</h3>
+                        <p class="summary-value" id="weaknesses">-</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Sistema de Análise de Desempenho - Kite Surf © 2024</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
